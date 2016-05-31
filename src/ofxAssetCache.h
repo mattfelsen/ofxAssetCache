@@ -8,7 +8,13 @@
 
 #pragma once
 
-#include "ofMain.h"
+#include "ofImage.h"
+#include "ofEvents.h"
+#include "ofShader.h"
+#include "ofTexture.h"
+#include "ofThread.h"
+#include "ofVideoPlayer.h"
+
 //#include "ofxImageSequence.h"
 //#include "ofxTurboJpeg.h"
 
