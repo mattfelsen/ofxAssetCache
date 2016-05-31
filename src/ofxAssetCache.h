@@ -15,6 +15,8 @@
 #include "ofThread.h"
 #include "ofVideoPlayer.h"
 
+#include "ofxHapPlayer.h"
+
 //#include "ofxImageSequence.h"
 //#include "ofxTurboJpeg.h"
 
@@ -34,6 +36,7 @@ public:
 	shared_ptr<ofImage> image(const string& name);
 	shared_ptr<ofTexture> texture(const string& name);
 	shared_ptr<ofVideoPlayer> video(const string& name);
+	shared_ptr<ofxHapPlayer> hapVideo(const string& name);
 	shared_ptr<ofShader> shader(const string& name);
 //	shared_ptr<ofxImageSequence> sequence(const string& name);
 
@@ -44,6 +47,7 @@ public:
 	ofImage* imagePointer(const string& name);
 	ofTexture* texturePointer(const string& name);
 	ofVideoPlayer* videoPointer(const string& name);
+	ofxHapPlayer* hapVideoPointer(const string& name);
 
 	// Adding assets
 	// Use these to load new assets. If already loaded, asset will be skipped
@@ -61,6 +65,7 @@ public:
 	void addTextureAsync(const string& name, const string& filename = "", bool mipmaps = false);
 
 	bool addVideo(const string& name, const string& filename = "");
+	bool addHapVideo(const string& name, const string& filename = "");
 
 	bool addShader(const string& name, const string& filename = "");
 
@@ -96,6 +101,7 @@ protected:
 	unordered_map<string, shared_ptr<ofImage>> images;
 	unordered_map<string, shared_ptr<ofTexture>> textures;
 	unordered_map<string, shared_ptr<ofVideoPlayer>> videos;
+	unordered_map<string, shared_ptr<ofxHapPlayer>> hapVideos;
 	unordered_map<string, shared_ptr<ofShader>> shaders;
 //	unordered_map<string, shared_ptr<ofxImageSequence>> sequences;
 
@@ -103,12 +109,13 @@ protected:
 	shared_ptr<ofImage> emptyImage;
 	shared_ptr<ofTexture> emptyTexture;
 	shared_ptr<ofVideoPlayer> emptyVideo;
+	shared_ptr<ofxHapPlayer> emptyHapVideo;
 
 	deque<QueuedItem> cpuQueue;
 	deque<QueuedItem> gpuQueue;
 
 private:
-//	ofxTurboJpeg turbo;
+	//	ofxTurboJpeg turbo;
 
 	ofxAssetCache(ofxAssetCache const&);
 	void operator=(ofxAssetCache const&);

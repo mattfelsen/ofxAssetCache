@@ -18,6 +18,7 @@ ofxAssetCache::ofxAssetCache() {
 	addTexture("", emptyImage->getPixels());
 
 	emptyVideo = make_shared<ofVideoPlayer>();
+	emptyHapVideo = make_shared<ofxHapPlayer>();
 
 	startThread();
 	ofAddListener(ofEvents().update, this, &ofxAssetCache::update);
@@ -117,6 +118,20 @@ ofVideoPlayer* ofxAssetCache::videoPointer(const string& name) {
 	return video(name).get();
 }
 
+shared_ptr<ofxHapPlayer> ofxAssetCache::hapVideo(const string &name) {
+	// TODO Cache empty texture so you only get a warning the first time
+	// you try to access it and not every frame trying to draw it?
+	if (!exists(hapVideos, name)) {
+		ofLogError("Assets") << "no such Hap video: " << name;
+		return emptyHapVideo;
+	}
+
+	return hapVideos[name];
+}
+ofxHapPlayer* ofxAssetCache::hapVideoPointer(const string& name) {
+	return hapVideo(name).get();
+}
+
 shared_ptr<ofShader> ofxAssetCache::shader(const string &name) {
 	if (!exists(shaders, name)) {
 		ofLogError("Assets") << "no such shader: " << name;
@@ -127,15 +142,15 @@ shared_ptr<ofShader> ofxAssetCache::shader(const string &name) {
 }
 
 /*
-shared_ptr<ofxImageSequence> ofxAssetCache::sequence(const string &name) {
+ shared_ptr<ofxImageSequence> ofxAssetCache::sequence(const string &name) {
 	if (!exists(sequences, name)) {
-		ofLogError("Assets") << "no such sequence: " << name;
-		return nullptr;
+ ofLogError("Assets") << "no such sequence: " << name;
+ return nullptr;
 	}
 
 	return sequences[name];
-}
-*/
+ }
+ */
 
 bool ofxAssetCache::loadToPixels(const string& file, ofPixels& pix) {
 	if (!ofFile(file).exists()) {
@@ -146,11 +161,11 @@ bool ofxAssetCache::loadToPixels(const string& file, ofPixels& pix) {
 	string ext = ofToLower(ofFile(file).getExtension());
 
 	/*
-	if (ext == "jpg" || ext == "jpeg")
+	 if (ext == "jpg" || ext == "jpeg")
 		turbo.load(file, pix);
-	else
+	 else
 	 */
-		ofLoadImage(pix, file);
+	ofLoadImage(pix, file);
 
 	if (!pix.isAllocated()) {
 		ofLogError("Assets") << "loadToPixels: failed to load: " << file;
@@ -319,6 +334,30 @@ bool ofxAssetCache::addVideo(const string &name, const string &filename) {
 	return true;
 }
 
+bool ofxAssetCache::addHapVideo(const string &name, const string &filename) {
+	string file = filename.empty() ? name : filename;
+
+	if (file.empty()) {
+		ofLogVerbose("Assets") << "addHapVideo: filename is empty!";
+		return false;
+	}
+	if (exists(hapVideos, name)) {
+		ofLogVerbose("Assets") << "addHapVideo: skipping: " << name;
+		return true;
+	}
+
+	ofLogVerbose("Assets") << "loading " << file;
+	auto video = make_shared<ofxHapPlayer>();
+
+	if (!video->load(file)) {
+		ofLogError("Assets") << "addHapVideo: failed to load: " << file;
+		return false;
+	}
+
+	hapVideos[name] = video;
+	return true;
+}
+
 bool ofxAssetCache::addShader(const string &name, const string& filename) {
 	string file = filename.empty() ? name : filename;
 
@@ -353,16 +392,16 @@ bool ofxAssetCache::addShader(const string &name, const string& filename) {
 }
 
 /*
-bool ofxAssetCache::addSequence(const string &name, const string& folderName) {
+ bool ofxAssetCache::addSequence(const string &name, const string& folderName) {
 	string folder = folderName.empty() ? name : folderName;
 
 	if (folder.empty()) {
-		ofLogVerbose("Assets") << "addSequence: folder name is empty!";
-		return false;
+ ofLogVerbose("Assets") << "addSequence: folder name is empty!";
+ return false;
 	}
 	if (exists(sequences, name)) {
-		ofLogVerbose("Assets") << "addSequence: skipping: " << name;
-		return true;
+ ofLogVerbose("Assets") << "addSequence: skipping: " << name;
+ return true;
 	}
 
 	ofLogVerbose("Assets") << "adding sequence: " << name;
@@ -372,8 +411,8 @@ bool ofxAssetCache::addSequence(const string &name, const string& folderName) {
 
 	sequences[name] = sequence;
 	return true;
-}
-*/
+ }
+ */
 
 template<typename T>
 bool ofxAssetCache::exists(T& container, const string &name) {
