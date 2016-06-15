@@ -205,12 +205,20 @@ bool ofxAssetCache::addImage(const string &name, ofPixels& pix, bool mipmaps) {
 	}
 
 	ofLogVerbose("Assets") << "loading (gpu) " << name;
+	bool shouldEnableArbTex = false;
 	auto image = make_shared<ofImage>();
 
-	if (mipmaps)
+	if (mipmaps) {
+		shouldEnableArbTex = ofGetUsingArbTex();
+		ofDisableArbTex();
+
 		image->getTexture().enableMipmap();
+	}
 
 	image->setFromPixels(pix);
+
+	if (shouldEnableArbTex)
+		ofEnableArbTex();
 
 	if (!image->isAllocated()) {
 		ofLogError("Assets") << "addImage: failed to load: " << name;
@@ -272,12 +280,20 @@ bool ofxAssetCache::addTexture(const string &name, ofPixels& pix, bool mipmaps) 
 	}
 
 	ofLogVerbose("Assets") << "loading (gpu) " << name;
+	bool shouldEnableArbTex = false;
 	auto texture = make_shared<ofTexture>();
 
-	if (mipmaps)
+	if (mipmaps) {
+		shouldEnableArbTex = ofGetUsingArbTex();
+		ofDisableArbTex();
+
 		texture->enableMipmap();
+	}
 
 	texture->loadData(pix);
+
+	if (shouldEnableArbTex)
+		ofEnableArbTex();
 
 	if (!texture->isAllocated()) {
 		ofLogError("Assets") << "addTexture: failed to load: " << name;
